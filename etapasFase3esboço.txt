@@ -127,6 +127,122 @@
   # PENDENTE: testar fluxo end-to-end pelo front no GitHub Pages
   #           https://viniciusandradedev0.github.io/Projeto-pet-faculdade/
 
+
+# ============================================================
+# PRÓXIMOS DA FILA — TOP 5 FEATURES PARA O HUB DE ADOÇÃO
+# Identificadas a partir da análise do estado atual vs. sites reais
+# (Adoteumgatinho, Petfinder). Ordenadas por valor/esforço.
+#
+# IMPORTANTE: a ORDEM FÍSICA neste arquivo reflete a PRIORIDADE de
+# execução. Os números das Etapas são apenas identificadores estáveis
+# (não devem ser lidos como ordem cronológica).
+#
+# A "feature 2" do Top 5 (status dos pedidos + dashboard admin) está
+# detalhada na Etapa 20, mais abaixo neste arquivo.
+# ============================================================
+
+# CONTEXTO — o que o modelo atual está raso
+#
+# Animal hoje tem apenas: Slug, Nome, Especie, Idade, IdadeMeses, Imagem, LinkDetalhes.
+# Falta o que efetivamente importa para alguém adotar:
+#   - Sexo                        → filtro óbvio sempre usado
+#   - Porte (pequeno/médio/grande) → crucial para quem mora em apartamento
+#   - Castrado / Vacinado         → pessoas filtram por isso explicitamente
+#   - Cidade / Estado             → sem isso o hub é genérico, não regional
+#   - Descrição / personalidade   → é o que "vende" o animal
+#   - Galeria de fotos (3-5)      → uma foto só é decepcionante
+#   - DataEntrada                 → "espera há 2 anos" toca emocionalmente
+#
+# Pedido hoje tem só: AnimalId, UsuarioId, Telefone, Mensagem, DataPedido, Status (texto livre).
+# Falta:
+#   - Status real em workflow     → hoje todo pedido fica "pendente" para sempre
+#   - Histórico de mudanças       → adotante quer saber em que pé está
+#   - Resposta da ONG             → comunicação básica
+#   (estes três estão cobertos na Etapa 20)
+
+
+- [ ] Etapa 24 — Enriquecer modelo de animal + filtros avançados 🌟 (3-4h)  ← PRÓXIMA
+  # MAIOR ROI do projeto agora. Catálogo deixa de ser vitrine fria e vira
+  # algo realmente navegável. É a base que destrava Etapas 25 e 26.
+  #
+  # BACK:
+  - Animal.cs: adicionar campos Sexo (enum), Porte (enum),
+                Castrado (bool), Vacinado (bool), Cidade (string),
+                Estado (string, UF), Descricao (string),
+                DataEntrada (DateTime)
+  - Tabela AnimalFoto (Id, AnimalId, UrlImagem, Ordem) para galeria
+    OU campo Fotos como string concatenada (lista de URLs) — decidir
+    na implementação se vale a tabela extra
+  - AnimalResponseDto: incluir novos campos + lista de fotos
+  - GET /api/animais aceita query params:
+      ?sexo=m&porte=pequeno&castrado=true&cidade=Curitiba&especie=cachorro
+  - Seed atualizado com os novos campos preenchidos nos 15 animais
+  #
+  # FRONT:
+  - animais.html: UI de filtros expandida (sexo, porte, castrado, cidade)
+  - render.js: card mostra badges (porte, sexo, castrado, vacinado)
+  - Página de detalhe do animal (NOVO: animal.html?slug=...)
+      → galeria de fotos com swipe/setas, descrição, dados completos
+  - filtros.js: novos filtros + persistir seleção no querystring da URL
+
+
+- [ ] Etapa 25 — Quiz "Qual pet combina com você?" (2-3h)
+  # Feature mais lúdica e diferente do projeto. Dá personalidade ao site.
+  # Pode ser totalmente client-side ou ter endpoint dedicado no back.
+  # Requer Etapa 24 (usa porte/idade/descrição dos animais).
+  #
+  # OPÇÃO A (mais simples, recomendada): tudo no front
+  - quiz.html (NOVO): 5-7 perguntas com cards visuais
+      Perguntas sugeridas:
+        - Onde você mora? (casa com quintal / apartamento)
+        - Tem crianças pequenas em casa? (sim / não)
+        - Quanto tempo livre por dia? (pouco / médio / muito)
+        - É seu primeiro pet? (sim / não)
+        - Prefere energia alta ou tranquila?
+        - Aceita pet com necessidades especiais?
+  - scripts/quiz.js: pontua cada animal com base nas respostas
+  - Resultado: top 3 animais recomendados com botão "ver perfil"
+  #
+  # OPÇÃO B (se quiser back): POST /api/match { respostas } → 3 animais
+
+
+- [ ] Etapa 26 — Mapa dos animais / abrigos (2h)
+  # Visual marcante, baixo esforço. Leaflet.js é gratuito e sem API key.
+  # Requer Etapa 24 (Cidade/Estado nos animais).
+  #
+  - mapa.html (NOVO): página com mapa Leaflet + tiles do OpenStreetMap
+  - scripts/mapa.js: agrupa animais por cidade, mostra pins
+  - Click no pin → popup com mini-cards dos animais daquela cidade
+  - Link "Ver mapa" no header e na home
+
+
+- [ ] Etapa 27 — Histórias de adoção / pós-adoção (3h)
+  # Cria ciclo emocional — pessoas voltam para ver histórias.
+  # Requer Etapa 20 (status Aprovado).
+  #
+  # BACK:
+  - Tabela HistoriaAdocao (Id, PedidoId, UsuarioId, AnimalId,
+                            Titulo, Texto, FotoUrl, DataPostagem)
+  - Endpoints:
+      - POST   /api/historias            → criar (só se pedido = Aprovado)
+      - GET    /api/historias            → lista pública (mais recentes)
+      - GET    /api/historias/{id}       → uma história
+  #
+  # FRONT:
+  - historias.html (NOVO): grid de histórias com foto + título + trecho
+  - historia.html?id=... (NOVO): página de detalhe
+  - meus-pedidos.html: se pedido Aprovado, botão "Compartilhar nossa história"
+  - Animal já adotado recebe badge "Encontrei um lar! 🎉" no catálogo
+  #
+  # OBSERVAÇÃO: upload de foto da história pode usar URL externa primeiro
+  # (cole o link de uma foto que já está em outro lugar). Upload real
+  # com Cloudinary/Azure Blob fica para a Etapa 21.
+
+
+# ============================================================
+# DEPOIS DESSAS — PENDÊNCIAS TÉCNICAS / EVOLUÇÕES POSTERIORES
+# ============================================================
+
 - [x] Etapa 14.1 — Favoritos no front (coração nos cards + favoritos.html + toggle via API)
 - [x] Etapa 14.2 — Atualizar perfil (nome, telefone) — PUT /api/usuarios/me implementado em perfil.html
 - [x] Etapa 16.1 — Remover data/animais.json após validação em produção confirmada
@@ -136,10 +252,48 @@
   # Backend: PaginadoDto<T> + AnimaisController + PedidosController (Skip/Take, CountAsync)
   # Frontend: data.js retorna envelope, animais-page.js usa tamanhoPagina=50, meus-pedidos.js com nav Anterior/Próxima
 - [ ] Etapa 19 — Testes de integração no back-end (xUnit + WebApplicationFactory)
-- [ ] Etapa 20 — Painel admin: gerenciar animais e atualizar status dos pedidos
+- [ ] Etapa 20 — Painel admin: gerenciar animais e atualizar status dos pedidos 🌟 (4-5h)
+  # Demonstra autorização por role no JWT e workflow real de adoção.
+  # Bom diferencial técnico para apresentação acadêmica.
+  # OBS: encadeia bem com a Etapa 27 (Histórias dependem do status Aprovado).
+  #
+  # BACK:
+  - Enum StatusPedido { Pendente, EmAnalise, EntrevistaAgendada,
+                        Aprovado, Rejeitado, Cancelado }
+  - Tabela HistoricoStatusPedido (Id, PedidoId, StatusAnterior,
+                                   StatusNovo, MensagemOng, DataMudanca)
+  - Usuario.cs: campo Role (enum: Adotante, Admin)
+  - JwtService: incluir claim "role" no token
+  - AdminPedidosController (todos com [Authorize(Roles = "Admin")]):
+      - GET    /api/admin/pedidos              → lista todos os pedidos
+      - PUT    /api/admin/pedidos/{id}/status  → muda status + mensagem
+      - GET    /api/admin/pedidos/{id}/historico → linha do tempo
+  - AdminAnimaisController: CRUD básico (POST/PUT/DELETE) protegido por role
+  - Seed: cria um usuário admin padrão (admin@pawsplace.com)
+  #
+  # FRONT:
+  - meus-pedidos.html: mostra status atual com cor + última mensagem da ONG
+  - admin/pedidos.html (NOVO, protegida por role): lista pedidos com filtro
+      por status, dropdown para mudar status, campo de resposta
+  - admin/animais.html (NOVO): formulário CRUD de animais
+
 - [ ] Etapa 21 — Upload de foto de perfil (Azure Blob ou Cloudinary)
 - [ ] Etapa 22 — Notificações por e-mail ao mudar status do pedido (SendGrid)
 - [ ] Etapa 23 — Migração para Blazor WebAssembly (front em C# consumindo a mesma API)
+
+
+# ============================================================
+# O QUE FOI AVALIADO E DESCARTADO NESTA RODADA
+# ============================================================
+# Cada item abaixo foi pensado mas decidiu-se NÃO incluir no Top 5 agora.
+# Vale revisitar se sobrar tempo após Etapas 24-27.
+#
+# - Doação via PIX/Stripe          → burocracia legal + serviço externo
+# - Chat com ONG em tempo real     → SignalR/polling complica o stack
+# - Upload de fotos pela UI        → precisa storage externo (Cloudinary);
+#                                    já existe como Etapa 21 separada
+# - Notificações por email reais   → já existe como Etapa 22 separada
+
 
 # NOTA — Branch versao-localStorage:
 # A branch `versao-localStorage` existe no repositório e preserva o estado do
