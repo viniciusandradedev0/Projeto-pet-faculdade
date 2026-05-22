@@ -138,7 +138,12 @@ builder.Services.AddScoped<AuthService>();
 // ============================================================
 // CONTROLLERS
 // ============================================================
-builder.Services.AddControllers();
+// Serializa enums como strings ("Macho"/"Femea", "Pequeno"/"Medio"/"Grande")
+// em vez do valor inteiro padrão — legível no JSON e na URL de query params
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+        options.JsonSerializerOptions.Converters.Add(
+            new System.Text.Json.Serialization.JsonStringEnumConverter()));
 
 var app = builder.Build();
 
