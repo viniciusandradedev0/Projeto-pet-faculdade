@@ -61,9 +61,16 @@ else if (IsRealValue(Environment.GetEnvironmentVariable("PGHOST")))
 
 if (pgConnection is not null)
 {
-    Console.WriteLine("[DB] Usando PostgreSQL");
+    Console.WriteLine("[DB] Usando PostgreSQL (via DATABASE_URL/PGHOST)");
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseNpgsql(pgConnection, o => o.EnableRetryOnFailure(3)));
+}
+else if (IsRealValue(connectionString) && connectionString!.StartsWith("Host="))
+{
+    // Railway injetou via ConnectionStrings__DefaultConnection (formato Npgsql direto)
+    Console.WriteLine("[DB] Usando PostgreSQL (via ConnectionStrings:DefaultConnection)");
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseNpgsql(connectionString, o => o.EnableRetryOnFailure(3)));
 }
 else
 {
