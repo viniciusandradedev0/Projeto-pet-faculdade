@@ -129,7 +129,7 @@ async function init() {
 
   // === Carrega dados ===
   try {
-    const animais = await carregarAnimais();
+    const { itens: animais } = await carregarAnimais();
 
     // === Atualiza estatísticas ===
     atualizarEstatisticas(animais);

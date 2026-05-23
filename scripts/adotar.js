@@ -10,12 +10,11 @@
  * - Criar pedido via API REST e redirecionar com toast de sucesso
  */
 
-import { carregarAnimais } from './data.js';
 import { protegerRota } from './proteger-rota.js';
 import { validarCampo, validarFormulario, conectarValidacaoAoVivo } from './validacao.js';
 import { inicializarBootstrap, salvarMensagemRedirect } from './bootstrap.js';
 import { mostrarToast } from './modal.js';
-import { apiFetch } from './config.js';
+import { apiFetch, API_BASE } from './config.js';
 
 // ============================================
 // INICIALIZAÇÃO
@@ -57,8 +56,10 @@ function obterIdDaUrl() {
 
 async function carregarAnimal(id) {
   try {
-    const animais = await carregarAnimais();
-    return animais.find((a) => a.id === id) || null;
+    const resposta = await fetch(`${API_BASE}/api/animais/${id}`);
+    if (!resposta.ok) return null;
+    const animal = await resposta.json();
+    return { ...animal, id: animal.slug };
   } catch {
     return null;
   }
