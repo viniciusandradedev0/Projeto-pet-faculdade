@@ -1,3 +1,10 @@
+# Arquivos locais — não sobem para o GitHub
+APRESENTACAO.md
+SESSAO_ATUAL.md
+DOCUMENTACAO_V2.md
+DOCUMENTACAO_V2.pdf
+gerar_pdf.py
+
 node_modules/
 .vite/
 dist/
