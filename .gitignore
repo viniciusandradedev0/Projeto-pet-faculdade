@@ -10,11 +10,20 @@ node_modules/
 dist/
 coverage/
 
-# .NET
-*.sln
-backend/**/bin/
-backend/**/obj/
-backend/**/*.db
-backend/**/*.db-shm
-backend/**/*.db-wal
-backend/**/appsettings.Production.json
+# .NET (vale para backend/ legado e src/ da v2)
+**/bin/
+**/obj/
+*.db
+*.db-shm
+*.db-wal
+**/appsettings.Production.json
+*.user
+.vs/
+
+# Angular (web/)
+.angular/
+
+# Claude Code: arquivos locais da máquina
+# (as skills em .claude/skills/ SÃO versionadas)
+.claude/worktrees/
+.claude/settings.local.json
