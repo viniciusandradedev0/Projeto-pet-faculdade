@@ -69,6 +69,12 @@ Só remover na Etapa 11, com confirmação do Vini.
 - **Git:** Conventional Commits em português (`feat: adiciona filtro por porte`).
   Branch de trabalho: `v2`. Nunca commitar, fazer push ou apagar arquivos sem pedido explícito.
 
+## Ferramentas (igual ao trabalho)
+
+- **Back:** Visual Studio 2026, abrindo `src/PawsPlace.slnx` (F5 → perfil `http` → abre o Scalar).
+  Ao dar instruções de back, prefira os caminhos do VS (Gerenciador de Soluções, F5, `.http`).
+- **Front:** VS Code, abrindo a pasta `web/`.
+
 ## Comandos
 
 ```bash
